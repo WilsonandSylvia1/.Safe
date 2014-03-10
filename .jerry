@@ -1,0 +1,53 @@
+#include <Servo.h>
+Servo servo1; 
+#include "Keypad.h"
+char guess[4];
+int counter=0;
+int binary[]={1,2,4,8,16,32,64,128};
+int correct[4]={'8','2','3','4'};
+const  byte ROWS=4;
+const byte COLS=3;
+char key[ROWS][COLS]=
+{{'1','2','3'},
+{'4','5','6'},
+{'7','8','9'},
+};
+byte rowPins[ROWS]={5,6,7,8};
+byte colPins[COLS]={2,3,4};
+Keypad keypad=Keypad(makeKeymap(key),rowPins,colPins,ROWS,COLS);
+
+void setup(){
+  pinMode(9,OUTPUT);
+  servo1.attach(10);
+  Serial.begin(9600);
+  pinMode(11,OUTPUT);
+}
+
+void loop(){
+char key=keypad.getKey();
+if(key !=NO_KEY)
+{
+ if(key=='#')
+{
+  for(int i=0;i<4;i++)
+  {
+   Serial.println(guess[i]);
+  }
+  if(correct[0]==guess[0]&&correct[1]==guess[1]&&correct[2]==guess[2]&&correct[3]==guess[3])
+  {
+
+    servo1.write(45); // Turn Servo Left to 45 degrees
+}
+else
+{
+digitalWrite(11,HIGH);
+counter=0;
+}
+}
+else
+{  guess[counter]=key;
+  counter++;
+  Serial.println(key);
+}
+}
+}
