@@ -1,0 +1,98 @@
+#include "Keypad.h"
+char guess[4];
+int clock=13;
+int data=11;
+int latch=12;
+int counter=0;
+int binary[]={1,2,4,8,16,32,64,128};
+int correct[4]={'8','2','3','4'};
+const  byte ROWS=4;
+const byte COLS=3;
+char key[ROWS][COLS]=
+{{'1','2','3'},
+{'4','5','6'},
+{'7','8','9'}
+};
+byte rowPins[ROWS]={5,6,7,8};
+byte colPins[COLS]={2,3,4};
+
+byte checkmark[]={
+  B00000000,
+  B00000001,
+  B00000010,
+  B00000100,
+  B10001000,
+  B01010000,
+  B00100000,
+  B00000000
+};
+
+ byte X[]={
+  B00000000,
+  B01000010,
+  B00100100,
+  B00011000,
+  B00011000,
+  B00100100,
+  B01000010,
+  B00000000
+ };
+Keypad keypad=Keypad(makeKeymap(key),rowPins,colPins,ROWS,COLS);
+
+void setup(){
+  Serial.begin(9600);
+  pinMode(latch,OUTPUT);
+  pinMode(clock,OUTPUT);
+  pinMode(data,OUTPUT);
+}
+
+void loop(){
+char key=keypad.getKey();
+if(key !=NO_KEY)
+{
+ if(key=='1')
+{
+  for(int i=0;i<4;i++)
+  {
+   Serial.println(guess[i]);
+  }
+  if(correct[0]==guess[0]&&correct[1]==guess[1]&&correct[2]==guess[2]&&correct[3]==guess[3])
+  {
+for(int hold=0;hold<100;hold++)
+  {
+    for(int j=0;j<8;j++)
+    {
+      digitalWrite(latch,LOW);
+      shiftOut(data, clock, MSBFIRST,~checkmark[j]);
+      shiftOut(data, clock, MSBFIRST, binary[j]);
+      digitalWrite(latch, HIGH);
+      delay(1);
+    }
+}
+  }
+
+else
+
+{
+ for(int hold=0;hold<100;hold++)
+  {
+    for(int j=0;j<8;j++)
+    {
+      digitalWrite(latch,LOW);
+      shiftOut(data, clock, MSBFIRST,~X[j]);
+      shiftOut(data, clock, MSBFIRST, binary[j]);
+      digitalWrite(latch, HIGH);
+      delay(1);
+    }
+}
+counter=0;
+}
+}
+else
+{
+  guess[counter]=key;
+  counter++;
+  Serial.println(key);
+}
+}
+}
